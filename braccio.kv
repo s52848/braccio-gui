@@ -57,9 +57,66 @@
         Screen:
             name: "Manual"
 
-            Button:
-                text: "Back"
-                on_press: sm.current = "Menu"
+            BoxLayout:
+                orientation: "vertical"
+
+                Label:
+                    text: "Base"
+                    
+                Slider:
+                    id: "base"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Label:
+                    text: "Shoulder"
+                    
+                Slider:
+                    id: "shoulder"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Label:
+                    text: "Elbow"
+                    
+                Slider:
+                    id: "elbow"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Label:
+                    text: "Vertical Wrist"
+                    
+                Slider:
+                    id: "vwrist"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Label:
+                    text: "Rotatory Wrist"
+                    
+                Slider:
+                    id: "rwrist"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Label:
+                    text: "Gripper"
+                    
+                Slider:
+                    id: "gripper"
+                    min: 0
+                    max: 100
+                    value: 50
+
+                Button:
+                    text: "Back"
+                    on_press: sm.current = "Menu"
 
         Screen:
             name: "Automatic"
