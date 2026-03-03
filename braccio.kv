@@ -1,0 +1,70 @@
+<BraccioRoot>:
+    orientation: "vertical"
+
+    BoxLayout:
+        size_hint_y: 0.1
+
+        canvas.before:
+            Color:
+                rgba: (1, 0.5, 0, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Button:
+            text: "Connect"
+            background_color: (0.5, 0.5, 0.5, 1)
+            color: (1, 1, 1, 1)
+            size_hint_x: 0.4
+
+        Button:
+            text: "Disconnect"
+            background_color: (0.5, 0.5, 0.5, 1)
+            color: (1, 1, 1, 1)
+            size_hint_x: 0.4
+
+    ScreenManager:
+        id: sm
+
+        Screen:
+            name: "Menu"
+
+            BoxLayout:
+                orientation: "vertical"
+
+                Button:
+                    text: "Mode 1: Test"
+                    on_press: sm.current = "Test"
+
+                Button:
+                    text: "Mode 2: Manual"
+                    on_press: sm.current = "Manual"
+
+                Button:
+                    text: "Mode 3: Automatic"
+                    on_press: sm.current = "Automatic"
+
+                Button:
+                    text: "Exit"
+
+        Screen:
+            name: "Test"
+
+            Button:
+                text: "Back"
+                on_press: sm.current = "Menu"
+
+        Screen:
+            name: "Manual"
+
+            Button:
+                text: "Back"
+                on_press: sm.current = "Menu"
+
+        Screen:
+            name: "Automatic"
+
+            Button:
+                text: "Back"
+                on_press: sm.current = "Menu"
+ 
