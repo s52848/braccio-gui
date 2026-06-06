@@ -1,0 +1,160 @@
+<Label>
+    font_size: 30
+
+<Slider>
+    orientation: "horizontal"
+    step: 1
+
+<Controller>
+    status: status
+
+    test_logs: test_logs
+
+    base: base
+    shoulder: shoulder
+    elbow: elbow
+    wrist_vertical: wrist_vertical
+    wrist_rotation: wrist_rotation
+    gripper: gripper
+
+    screen_manager: screen_manager
+
+    GridLayout:
+        cols: 1
+        size: root.width, root.height
+
+        GridLayout:
+            cols: 2
+            size_hint: (1, .1)
+
+            Label:
+                text: "Status: "
+
+            Label:
+                id: status
+                text: "Connected"
+                color: (0, 1, 0, 1)
+
+        ScreenManager
+            id: screen_manager
+            size_hint: (1, .9)
+
+            Screen:
+                name: "Menu"
+
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 5
+                    padding: 10
+
+                    Button:
+                        text: "Mode 1: Test"
+                        on_press: root.raise_test()
+
+                    Button:
+                        text: "Mode 2: Manual"
+                        on_press: root.raise_manual()
+
+                    Button:
+                        text: "Mode 3: Automatic"
+                        on_press: root.raise_automatic()
+
+                    Button:
+                        text: "Exit"
+                        on_press: app.stop()
+
+            Screen:
+                name: "Test"
+
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 5
+                    padding: 10
+
+                    TextInput:
+                        id: test_logs
+                        readonly: True
+                        multiline: True
+                        cursor_blink: False
+                        cursor_width: 0
+
+                    Button:
+                        text: "Menu"
+                        on_press: screen_manager.current = "Menu"
+
+            Screen:
+                name: "Manual"
+
+                GridLayout:
+                    cols: 1
+
+                    Label:
+                        text: "Base"
+
+                    Slider
+                        id: base
+                        min: 0
+                        max: 180
+                        value: 90
+                        on_value: root.send_angle_vector()
+
+                    Label:
+                        text: "Shoulder"
+
+                    Slider
+                        id: shoulder
+                        min: 15
+                        max: 165
+                        value: 45
+                        on_value: root.send_angle_vector()
+
+                    Label:
+                        text: "Elbow"
+
+                    Slider
+                        id: elbow
+                        min: 0
+                        max: 180
+                        value: 180
+                        on_value: root.send_angle_vector()
+
+                    Label:
+                        text: "Wrist vertical"
+
+                    Slider
+                        id: wrist_vertical
+                        min: 0
+                        max: 180
+                        value: 180
+                        on_value: root.send_angle_vector()
+
+                    Label:
+                        text: "Wrist rotation"
+
+                    Slider
+                        id: wrist_rotation
+                        min: 0
+                        max: 180
+                        value: 90
+                        on_value: root.send_angle_vector()
+
+                    Label:
+                        text: "Gripper"
+
+                    Slider
+                        id: gripper
+                        min: 10
+                        max: 73
+                        value: 10
+                        on_value: root.send_angle_vector()
+
+                    Button:
+                        text: "Menu"
+                        on_press: screen_manager.current = "Menu"
+
+            Screen:
+                name: "Automatic"
+
+                Button:
+                    text: "Menu"
+                    on_press: screen_manager.current = "Menu"

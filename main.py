@@ -1,15 +1,103 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty
+from kivy.uix.widget import Widget
+
+from web_socket_client import WebSocketClient
+
+TEST_VECTORS_REGISTRY: dict[str, str] = {
+    "Base min": "5,0,90,90,90,90,73",
+    "Base mid": "5,90,90,90,90,90,73",
+    "Base max": "5,180,90,90,90,90,73",
+    "Post base": "5,90,90,90,90,90,73",
+    "Sholder min": "5,90,15,90,90,90,73",
+    "Sholder mid": "5,90,90,90,90,90,73",
+    "Sholder max": "5,90,165,90,90,90,73",
+    "Post shoulder": "5,90,90,90,90,90,73",
+    "Elbow min": "5,90,90,0,90,90,73",
+    "Elbow mid": "5,90,90,90,90,90,73",
+    "Elbow max": "5,90,90,180,90,90,73",
+    "Post elbow": "5,90,90,90,90,90,73",
+    "Wrist vertical min": "5,90,90,90,0,90,73",
+    "Wrist vertical mid": "5,90,90,90,90,90,73",
+    "Wrist vertical max": "5,90,90,90,180,90,73",
+    "Post wrist v": "5,90,90,90,90,90,73",
+    "Wrist rotation min": "5,90,90,90,90,0,73",
+    "Wrist rotation mid": "5,90,90,90,90,90,73",
+    "Wrist rotation max": "5,90,90,90,90,180,73",
+    "Post wrist r": "5,90,90,90,90,90,73",
+    "Gripper min": "5,90,90,90,90,90,73",
+    "Gripper mid": "5,90,90,90,90,90,42",
+    "Gripper max": "5,90,90,90,90,90,10",
+}
 
 
-class BraccioRoot(BoxLayout):
-    pass
+class Controller(Widget):
+    status = ObjectProperty(None)
+    test_logs = ObjectProperty(None)
+    base = ObjectProperty(None)
+    shoulder = ObjectProperty(None)
+    elbow = ObjectProperty(None)
+    wrist_vertical = ObjectProperty(None)
+    wrist_rotation = ObjectProperty(None)
+    gripper = ObjectProperty(None)
+    screen_manager = ObjectProperty(None)
+
+    def __init__(self, client: WebSocketClient, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        self._client = client
+
+    def raise_test(self) -> None:
+        def send_test_vector(angle: str, vector: str) -> None:
+            self.test_logs.text += f"{angle}\n"
+            self._client.send_vector(vector)
+
+        self.screen_manager.current = "Test"
+
+        for i, (angle, values) in enumerate(TEST_VECTORS_REGISTRY.items()):
+            Clock.schedule_once(
+                lambda dt, a=angle, v=values: send_test_vector(a, v), i * 2
+            )
+
+    def raise_manual(self) -> None:
+        self.screen_manager.current = "Manual"
+
+        self.base.value = 90
+        self.shoulder.value = 45
+        self.elbow.value = 180
+        self.wrist_vertical.value = 180
+        self.wrist_rotation.value = 90
+        self.gripper.value = 10
+
+        self.send_angle_vector()
+
+    def raise_automatic(self) -> None:
+        self.screen_manager.current = "Automatic"
+
+    def send_angle_vector(self) -> None:
+        vector = (
+            1,
+            int(self.base.value),
+            int(self.shoulder.value),
+            int(self.elbow.value),
+            int(self.wrist_vertical.value),
+            int(self.wrist_rotation.value),
+            int(self.gripper.value),
+        )
+
+        cmd = ",".join(map(str, vector))
+
+        self._client.send_vector(cmd)
 
 
-class BraccioApp(App):
-    def build(self):
-        return BraccioRoot()
+class Gui(App):
+    def build(self) -> Controller:
+        Builder.load_file("view.kv")
+
+        return Controller(WebSocketClient())
 
 
 if __name__ == "__main__":
-    BraccioApp().run()
+    Gui().run()
