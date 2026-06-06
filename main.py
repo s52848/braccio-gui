@@ -63,7 +63,7 @@ class Controller(Widget):
     def raise_test(self) -> None:
         def send_test_vector(angle: str, vector: str) -> None:
             self.test_logs.text += f"{angle}\n"
-            self._client.send_vector(vector)
+            self._client.send_message(vector)
 
         self.screen_manager.current = "Test"
 
@@ -110,9 +110,9 @@ class Controller(Widget):
             int(self.gripper.value),
         )
 
-        cmd = ",".join(map(str, vector))
+        vector = ",".join(map(str, vector))
 
-        self._client.send_vector(cmd)
+        self._client.send_message(vector)
 
     def reconnecting_task(self) -> None:
         TEXTS: dict[int, str] = {

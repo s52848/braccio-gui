@@ -8,7 +8,7 @@ from websockets.sync.client import connect
 
 class WebSocketClient:
     def __init__(self):
-        self._latest_vector: str | None = None
+        self._latest_message: str | None = None
         self._lock = Lock()
         self._on_connection: Callable[[], None]
         self._on_reconnecting: Callable[[], None]
@@ -16,9 +16,9 @@ class WebSocketClient:
     def start(self) -> None:
         Thread(target=self._establish_connection, daemon=True).start()
 
-    def send_vector(self, vector: str) -> None:
+    def send_message(self, message: str) -> None:
         with self._lock:
-            self._latest_vector = vector
+            self._latest_message = message
 
     def subscribe_on_connection(self, callback: Callable[[], None]) -> None:
         self._on_connection = callback
@@ -42,11 +42,10 @@ class WebSocketClient:
                 sleep(0.1)
 
                 with self._lock:
-                    vector = self._latest_vector
-                    self._latest_vector = None
+                    message = self._latest_message
+                    self._latest_message = None
 
-                if vector is None:
+                if message is None:
                     continue
 
-                print("SENDING: ", vector)
-                websocket.send(vector)
+                websocket.send(message)
