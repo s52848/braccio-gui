@@ -80,7 +80,7 @@
 
                     Button:
                         text: "Menu"
-                        on_press: screen_manager.current = "Menu"
+                        on_press: root.raise_menu()
 
             Screen:
                 name: "Manual"
@@ -150,11 +150,11 @@
 
                     Button:
                         text: "Menu"
-                        on_press: screen_manager.current = "Menu"
+                        on_press: root.raise_menu()
 
             Screen:
                 name: "Automatic"
 
                 Button:
                     text: "Menu"
-                    on_press: screen_manager.current = "Menu"
+                    on_press: root.raise_menu()

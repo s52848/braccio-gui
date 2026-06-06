@@ -11,9 +11,9 @@ TEST_VECTORS_REGISTRY: dict[str, str] = {
     "Base mid": "5,90,90,90,90,90,73",
     "Base max": "5,180,90,90,90,90,73",
     "Post base": "5,90,90,90,90,90,73",
-    "Sholder min": "5,90,15,90,90,90,73",
-    "Sholder mid": "5,90,90,90,90,90,73",
-    "Sholder max": "5,90,165,90,90,90,73",
+    "Shoulder min": "5,90,15,90,90,90,73",
+    "Shoulder mid": "5,90,90,90,90,90,73",
+    "Shoulder max": "5,90,165,90,90,90,73",
     "Post shoulder": "5,90,90,90,90,90,73",
     "Elbow min": "5,90,90,0,90,90,73",
     "Elbow mid": "5,90,90,90,90,90,73",
@@ -22,11 +22,11 @@ TEST_VECTORS_REGISTRY: dict[str, str] = {
     "Wrist vertical min": "5,90,90,90,0,90,73",
     "Wrist vertical mid": "5,90,90,90,90,90,73",
     "Wrist vertical max": "5,90,90,90,180,90,73",
-    "Post wrist v": "5,90,90,90,90,90,73",
+    "Post wrist vertical": "5,90,90,90,90,90,73",
     "Wrist rotation min": "5,90,90,90,90,0,73",
     "Wrist rotation mid": "5,90,90,90,90,90,73",
     "Wrist rotation max": "5,90,90,90,90,180,73",
-    "Post wrist r": "5,90,90,90,90,90,73",
+    "Post wrist rotation": "5,90,90,90,90,90,73",
     "Gripper min": "5,90,90,90,90,90,73",
     "Gripper mid": "5,90,90,90,90,90,42",
     "Gripper max": "5,90,90,90,90,90,10",
@@ -48,10 +48,17 @@ class Controller(Widget):
         super().__init__(**kwargs)
 
         self._client = client
+        self._test_events: list = []
         self._retry_count: int = 0
 
-        self._client.subscribe_on_connection(self.set_connected)
-        self._client.subscribe_on_reconnecting(self.set_reconnecting)
+        self._client.subscribe_on_connection(self.connected_task)
+        self._client.subscribe_on_reconnecting(self.reconnecting_task)
+        self._client.start()
+
+    def raise_menu(self) -> None:
+        self.cancel_test()
+
+        self.screen_manager.current = "Menu"
 
     def raise_test(self) -> None:
         def send_test_vector(angle: str, vector: str) -> None:
@@ -60,10 +67,21 @@ class Controller(Widget):
 
         self.screen_manager.current = "Test"
 
-        for i, (angle, values) in enumerate(TEST_VECTORS_REGISTRY.items()):
+        self._test_events = [
             Clock.schedule_once(
-                lambda dt, a=angle, v=values: send_test_vector(a, v), i * 2
+                lambda dt, a=angle, v=values: send_test_vector(a, v),
+                i * 2,
             )
+            for i, (angle, values) in enumerate(TEST_VECTORS_REGISTRY.items())
+        ]
+
+    def cancel_test(self) -> None:
+        self.test_logs.text = ""
+
+        for event in self._test_events:
+            event.cancel()
+
+        self._test_events.clear()
 
     def raise_manual(self) -> None:
         self.screen_manager.current = "Manual"
@@ -78,6 +96,7 @@ class Controller(Widget):
         self.send_angle_vector()
 
     def raise_automatic(self) -> None:
+
         self.screen_manager.current = "Automatic"
 
     def send_angle_vector(self) -> None:
@@ -95,7 +114,7 @@ class Controller(Widget):
 
         self._client.send_vector(cmd)
 
-    def set_reconnecting(self) -> None:
+    def reconnecting_task(self) -> None:
         TEXTS: dict[int, str] = {
             0: "Reconnecting.",
             1: "Reconnecting..",
@@ -106,7 +125,7 @@ class Controller(Widget):
         self.status.text = TEXTS.get(self._retry_count)
         self._retry_count = self._retry_count + 1 if self._retry_count < 2 else 0
 
-    def set_connected(self) -> None:
+    def connected_task(self) -> None:
         self.status.text = "Connected"
         self.status.color = (0, 1, 0, 1)
         self._retry_count = 0
