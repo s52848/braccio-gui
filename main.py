@@ -48,6 +48,10 @@ class Controller(Widget):
         super().__init__(**kwargs)
 
         self._client = client
+        self._retry_count: int = 0
+
+        self._client.subscribe_on_connection(self.set_connected)
+        self._client.subscribe_on_reconnecting(self.set_reconnecting)
 
     def raise_test(self) -> None:
         def send_test_vector(angle: str, vector: str) -> None:
@@ -90,6 +94,22 @@ class Controller(Widget):
         cmd = ",".join(map(str, vector))
 
         self._client.send_vector(cmd)
+
+    def set_reconnecting(self) -> None:
+        TEXTS: dict[int, str] = {
+            0: "Reconnecting.",
+            1: "Reconnecting..",
+            2: "Reconnecting...",
+        }
+
+        self.status.color = (1, 1, 0, 1)
+        self.status.text = TEXTS.get(self._retry_count)
+        self._retry_count = self._retry_count + 1 if self._retry_count < 2 else 0
+
+    def set_connected(self) -> None:
+        self.status.text = "Connected"
+        self.status.color = (0, 1, 0, 1)
+        self._retry_count = 0
 
 
 class Gui(App):
