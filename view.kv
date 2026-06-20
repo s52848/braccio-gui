@@ -56,10 +56,6 @@
                         on_press: root.raise_manual()
 
                     Button:
-                        text: "Mode 3: Automatic"
-                        on_press: root.raise_automatic()
-
-                    Button:
                         text: "Exit"
                         on_press: app.stop()
 
@@ -151,10 +147,3 @@
                     Button:
                         text: "Menu"
                         on_press: root.raise_menu()
-
-            Screen:
-                name: "Automatic"
-
-                Button:
-                    text: "Menu"
-                    on_press: root.raise_menu()

@@ -4,7 +4,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.widget import Widget
 
-from web_socket_client import WebSocketClient
+from websocket_client import WebSocketClient
 
 TEST_VECTORS_REGISTRY: dict[str, str] = {
     "Base min": "5,0,90,90,90,90,73",
@@ -94,10 +94,6 @@ class Controller(Widget):
         self.gripper.value = 10
 
         self.send_angle_vector()
-
-    def raise_automatic(self) -> None:
-
-        self.screen_manager.current = "Automatic"
 
     def send_angle_vector(self) -> None:
         vector = (
